@@ -33,5 +33,5 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - com.yupi.yupicturebackend.controller
+          - com.leafi.backend.controller
 
