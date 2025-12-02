@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leafi.backend.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.leafi.backend.model.entity.User">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="userAccount" property="userAccount" jdbcType="VARCHAR" />
+        <result column="userPassword" property="userPassword" jdbcType="VARCHAR" />
+        <result column="userName" property="userName" jdbcType="VARCHAR" />
+        <result column="userAvatar" property="userAvatar" jdbcType="VARCHAR" />
+        <result column="userProfile" property="userProfile" jdbcType="VARCHAR" />
+        <result column="userRole" property="userRole" jdbcType="VARCHAR" />
+        <result column="editTime" property="editTime" jdbcType="TIMESTAMP" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="isDelete" property="isDelete" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, userAccount, userPassword, 
+        userName, userAvatar, userProfile, 
+        userRole, editTime, createTime, 
+        updateTime, isDelete
+    </sql>
+
+    <!-- <insert id="insert" parameterType="com.leafi.backend.model.entity.User">
+        INSERT INTO user (
+            id, userAccount, userPassword, userName, userAvatar, userProfile, userRole, editTime, createTime, updateTime, isDelete
+        )
+        VALUES (
+            #{ id,jdbcType=BIGINT },
+            #{ userAccount,jdbcType=VARCHAR },
+            #{ userPassword,jdbcType=VARCHAR },
+            #{ userName,jdbcType=VARCHAR },
+            #{ userAvatar,jdbcType=VARCHAR },
+            #{ userProfile,jdbcType=VARCHAR },
+            #{ userRole,jdbcType=VARCHAR },
+            #{ editTime,jdbcType=TIMESTAMP },
+            #{ createTime,jdbcType=TIMESTAMP },
+            #{ updateTime,jdbcType=TIMESTAMP },
+            #{ isDelete,jdbcType=TINYINT }
+        )
+    </insert>
+
+    <delete id="deleteByPrimaryKey">
+        DELETE FROM user
+        WHERE id = #{ id,jdbcType=BIGINT }
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.leafi.backend.model.entity.User">
+        UPDATE user
+        SET
+            userAccount = #{ userAccount,jdbcType=VARCHAR },
+            userPassword = #{ userPassword,jdbcType=VARCHAR },
+            userName = #{ userName,jdbcType=VARCHAR },
+            userAvatar = #{ userAvatar,jdbcType=VARCHAR },
+            userProfile = #{ userProfile,jdbcType=VARCHAR },
+            userRole = #{ userRole,jdbcType=VARCHAR },
+            editTime = #{ editTime,jdbcType=TIMESTAMP },
+            createTime = #{ createTime,jdbcType=TIMESTAMP },
+            updateTime = #{ updateTime,jdbcType=TIMESTAMP },
+            isDelete = #{ isDelete,jdbcType=TINYINT }
+        WHERE id = #{ id,jdbcType=BIGINT }
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user
+        WHERE id = #{ id,jdbcType=BIGINT }
+    </select> -->
+
+</mapper>

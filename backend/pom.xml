@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.yupi</groupId>
-    <artifactId>yu-picture-backend</artifactId>
+    <groupId>com.leafi</groupId>
+    <artifactId>backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>yu-picture-backend</name>
-    <description>yu-picture-backend</description>
+    <name>backend</name>
+    <description>backend</description>
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,11 +63,11 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
         <!-- 分库分表 -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
             <version>5.2.0</version>
-        </dependency>
+        </dependency> -->
         <!-- HTML 解析：https://jsoup.org/ -->
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -144,7 +144,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.yupi.yupicturebackend.YuPictureBackendApplication</mainClass>
+                    <mainClass>com.leafi.backend.DemoApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
