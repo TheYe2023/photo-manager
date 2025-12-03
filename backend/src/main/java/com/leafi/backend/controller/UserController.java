@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.util.List;
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = {"http://localhost:8123", "http://localhost:5173"}, allowCredentials = "true")
 public class UserController {
 
     @Resource

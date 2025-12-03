@@ -8,7 +8,7 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="https://www.codefather.cn" target="_blank">
+        <a href="" target="_blank">
           by Leafi
         </a>
       </a-layout-footer>

@@ -5,6 +5,7 @@ import HomePage from "@/pages/HomePage.vue";
 import UserLoginPage from '@/pages/user/UserLoginPage.vue';
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue';
 import UserManagePage from '@/pages/admin/UserManagePage.vue';
+import ACCESS_ENUM from '@/access/accessEnum';
 
 
 healthUsingGet().then((res) => {
@@ -34,6 +35,9 @@ const router = createRouter({
       path: "/admin/userManage",
       name: "用户管理",
       component: UserManagePage,
+      meta: {
+        access: ACCESS_ENUM.ADMIN
+      },
     },
   ],
 })
