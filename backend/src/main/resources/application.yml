@@ -5,6 +5,11 @@ server:
 spring:
   application:
     name: backend
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
