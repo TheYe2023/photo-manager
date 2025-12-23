@@ -66,6 +66,22 @@ public class PictureQueryRequest extends PageRequest implements Serializable {
      * 搜索词（同时搜名称、简介等）  
      */  
     private String searchText;  
+
+    /**  
+     * 状态：0-待审核; 1-通过; 2-拒绝  
+     */  
+    private Integer reviewStatus;  
+    
+    /**  
+     * 审核信息  
+     */  
+    private String reviewMessage;  
+    
+    /**  
+     * 审核人 id  
+     */  
+    private Long reviewerId;
+
   
     /**  
      * 用户 id  

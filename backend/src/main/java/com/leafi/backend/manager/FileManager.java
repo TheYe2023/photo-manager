@@ -11,6 +11,7 @@ import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**  
+ * 文件服务  
+ * @deprecated 已废弃，改为使用 upload 包的模板方法优化  
+ */  
+@Deprecated
 @Service  
 @Slf4j  
 public class FileManager {  
@@ -110,3 +116,4 @@ public class FileManager {
     }
 
 }
+

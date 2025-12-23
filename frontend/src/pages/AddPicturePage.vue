@@ -12,6 +12,10 @@
         <!-- 图片上传组件 -->
         <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
       </a-tab-pane>
+      <a-tab-pane key="url" tab="URL 上传" force-render>
+        <!-- URL 图片上传组件 -->
+        <UrlPictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
+      </a-tab-pane>
     </a-tabs>
         <!-- 图片信息表单 -->
     <a-form
@@ -58,13 +62,14 @@
 
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
+import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import { computed, h, onMounted, reactive, ref, watchEffect } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   editPictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureTagCategoryUsingGet,
-} from '@/api/pictureController.ts'
+} from '@/api/pictureController'
 import { useRoute, useRouter } from 'vue-router'
 import { EditOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
 const router = useRouter()
