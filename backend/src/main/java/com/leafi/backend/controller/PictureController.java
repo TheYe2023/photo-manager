@@ -40,10 +40,12 @@ import com.leafi.backend.model.dto.picture.PictureUploadRequest;
 import com.leafi.backend.model.vo.PictureVO;
 import com.leafi.backend.model.vo.PictureTagCategory;
 import com.leafi.backend.model.entity.Picture;
+import com.leafi.backend.model.entity.Space;
 import com.leafi.backend.model.entity.User;
 import com.leafi.backend.model.enums.PictureReviewStatusEnum;
 import com.leafi.backend.service.PictureService;
 import com.leafi.backend.service.UserService;
+import com.leafi.backend.service.SpaceService;
 import com.leafi.backend.exception.ErrorCode;
 
 
@@ -59,6 +61,9 @@ public class PictureController {
 
     @Resource
     private PictureService pictureService;
+
+    @Resource
+    private SpaceService spaceService;
     
     /**  
      * 上传图片（可重新上传）  
@@ -87,28 +92,17 @@ public class PictureController {
         return ResultUtils.success(pictureVO);  
     }
 
-    /**  
-     * 删除图片  
-     */  
-    @PostMapping("/delete")  
-    public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {  
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {  
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);  
-        }  
-        User loginUser = userService.getLoginUser(request);  
-        long id = deleteRequest.getId();  
-        // 判断是否存在  
-        Picture oldPicture = pictureService.getById(id);  
-        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);  
-        // 仅本人或管理员可删除  
-        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {  
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);  
-        }  
-        // 操作数据库  
-        boolean result = pictureService.removeById(id);  
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);  
-        return ResultUtils.success(true);  
-    }  
+    @PostMapping("/delete")
+    // @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_DELETE)
+    public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest
+            , HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        pictureService.deletePicture(deleteRequest.getId(), loginUser);
+        return ResultUtils.success(true);
+    }
     
     /**  
      * 更新图片（仅管理员可用）  
@@ -160,8 +154,14 @@ public class PictureController {
     @GetMapping("/get/vo")  
     public BaseResponse<PictureVO> getPictureVOById(long id, HttpServletRequest request) {  
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);  
-        // 查询数据库  
-        Picture picture = pictureService.getById(id);  
+        Picture picture = pictureService.getById(id);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 空间权限校验
+        Long spaceId = picture.getSpaceId();
+        if (spaceId != null) {
+            User loginUser = userService.getLoginUser(request);
+            pictureService.checkPictureAuth(loginUser, picture);
+        }
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);  
         // 获取封装类  
         return ResultUtils.success(pictureService.getPictureVO(picture, request));  
@@ -191,6 +191,22 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();  
         // 限制爬虫  
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);  
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+        // 公开图库
+        if (spaceId == null) {
+            // 普通用户默认只能查看已过审的公开数据
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            pictureQueryRequest.setNullSpaceId(true);
+        } else {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        }
         // 设置只能查看审核通过的图片
         pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         // 查询数据库  
@@ -202,35 +218,15 @@ public class PictureController {
     
     /**  
      * 编辑图片（给用户使用）  
-     */  
-    @PostMapping("/edit")  
-    public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {  
-        if (pictureEditRequest == null || pictureEditRequest.getId() <= 0) {  
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);  
-        }  
-        // 在此处将实体类和 DTO 进行转换  
-        Picture picture = new Picture();  
-        BeanUtils.copyProperties(pictureEditRequest, picture);  
-        // 注意将 list 转为 string  
-        picture.setTags(JSONUtil.toJsonStr(pictureEditRequest.getTags()));  
-        // 设置编辑时间  
-        picture.setEditTime(new Date());  
-        // 数据校验  
-        pictureService.validPicture(picture);  
-        User loginUser = userService.getLoginUser(request);  
-        // 判断是否存在  
-        long id = pictureEditRequest.getId();  
-        Picture oldPicture = pictureService.getById(id);  
-        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);  
-        // 仅本人或管理员可编辑  
-        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {  
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);  
-        }  
-        pictureService.fillReviewParams(picture, loginUser);
-        // 操作数据库  
-        boolean result = pictureService.updateById(picture);  
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);  
-        return ResultUtils.success(true);  
+     */   
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
+        if (pictureEditRequest == null || pictureEditRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        pictureService.editPicture(pictureEditRequest, loginUser);
+        return ResultUtils.success(true);
     }
 
     /**  

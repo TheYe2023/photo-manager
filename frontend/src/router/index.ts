@@ -9,7 +9,10 @@ import ACCESS_ENUM from '@/access/accessEnum';
 import AddPicturePage from '@/pages/AddPicturePage.vue';
 import PictureManagePage from '@/pages/admin/PictureManagePage.vue';
 import PictureDetailPage from '@/pages/PictureDetailPage.vue';
-
+import SpaceManagePage from '@/pages/admin/SpaceManagePage.vue';
+import AddSpacePage from '@/pages/AddSpacePage.vue';
+import MySpacePage from '@/pages/MySpacePage.vue';
+import SpaceDetailPage from '@/pages/SpaceDetailPage.vue';
 
 healthUsingGet().then((res) => {
   console.log(res)
@@ -57,8 +60,28 @@ const router = createRouter({
       name: '图片详情',
       component: PictureDetailPage,
       props: true,
-    }
-
+    },
+    {
+    path: '/admin/spaceManage',
+    name: '空间管理',
+    component: SpaceManagePage,
+    },
+    {
+      path: '/add_space',
+      name: '创建空间',
+      component: AddSpacePage,
+    },
+    {
+      path: '/my_space',
+      name: '我的空间',
+      component: MySpacePage,
+    },
+    {
+      path: '/space/:id',
+      name: '空间详情',
+      component: SpaceDetailPage,
+      props: true,
+    },
   ],
 })
 

@@ -88,6 +88,7 @@ import {
 import { useRouter } from 'vue-router'
 import { downloadImage, formatSize } from '@/utils/index'
 import { useLoginUserStore } from '@/stores/useLoginUserStore'
+import { SPACE_PERMISSION_ENUM } from '@/constants/space'
 
 interface Props {
   id: string | number
@@ -137,8 +138,8 @@ const doEdit = () => {
     path: '/add_picture',
     query: {
       id: picture.value.id,
-      spaceId: picture.value.spaceId,
-    },
+      spaceId: picture.value.spaceId
+    }
   })
 }
 

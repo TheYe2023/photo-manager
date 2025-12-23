@@ -30,8 +30,8 @@
               </template>
             </a-card-meta>
             <template v-if="showOp" #actions>
-              <SearchOutlined @click="(e) => doSearch(picture, e)" />
-              <EditOutlined v-if="canEdit" @click="(e) => doEdit(picture, e)" />
+              <EditOutlined @click="(e) => doEdit(picture, e)" />
+              <DeleteOutlined @click="(e) => doDelete(picture, e)" />
             </template>
           </a-card>
         </a-list-item>
@@ -49,14 +49,13 @@ import {
   ShareAltOutlined,
 } from '@ant-design/icons-vue'
 import { deletePictureUsingPost } from '@/api/pictureController'
+import { message } from 'ant-design-vue'
 import { ref } from 'vue'
 
 interface Props {
   dataList?: API.PictureVO[]
   loading?: boolean
   showOp?: boolean
-  canEdit?: boolean
-  canDelete?: boolean
   onReload?: () => void
 }
 
@@ -64,8 +63,6 @@ const props = withDefaults(defineProps<Props>(), {
   dataList: () => [],
   loading: false,
   showOp: false,
-  canEdit: false,
-  canDelete: false,
 })
 
 const router = useRouter()
@@ -96,6 +93,23 @@ const doEdit = (picture, e) => {
       spaceId: picture.spaceId,
     },
   })
+}
+
+// 删除
+const doDelete = async (picture, e) => {
+  e.stopPropagation()
+  const id = picture.id
+  if (!id) {
+    return
+  }
+  const res = await deletePictureUsingPost({ id })
+  if (res.data.code === 0) {
+    message.success('删除成功')
+    // 让外层刷新
+    props?.onReload()
+  } else {
+    message.error('删除失败')
+  }
 }
 
 </script>
