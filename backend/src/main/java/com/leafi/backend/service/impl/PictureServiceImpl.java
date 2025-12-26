@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.leafi.backend.common.PageRequest;
 import com.leafi.backend.exception.BusinessException;
 import com.leafi.backend.exception.ErrorCode;
 import com.leafi.backend.exception.ThrowUtils;
@@ -165,6 +166,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();  
         picture.setUrl(uploadPictureResult.getUrl());  
         picture.setName(uploadPictureResult.getPicName());  
+        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         picture.setPicSize(uploadPictureResult.getPicSize());  
         picture.setPicWidth(uploadPictureResult.getPicWidth());  
         picture.setPicHeight(uploadPictureResult.getPicHeight());  
@@ -225,8 +227,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         String reviewMessage = pictureQueryRequest.getReviewMessage();  
         Long reviewerId = pictureQueryRequest.getReviewerId();  
         boolean nullSpaceId = pictureQueryRequest.isNullSpaceId();
-        // 空间权限校验
         Long spaceId = pictureQueryRequest.getSpaceId();
+        Date startEditTime = pictureQueryRequest.getStartEditTime();
+        Date endEditTime = pictureQueryRequest.getEndEditTime();
+
 
         // 从多字段中搜索  
         if (StrUtil.isNotBlank(searchText)) {  
@@ -251,6 +255,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);  
         queryWrapper.like(StrUtil.isNotBlank(reviewMessage), "reviewMessage", reviewMessage);  
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
+        queryWrapper.ge(ObjUtil.isNotEmpty(startEditTime), "editTime", startEditTime);
+        queryWrapper.lt(ObjUtil.isNotEmpty(endEditTime), "editTime", endEditTime);
         // JSON 数组查询  
         if (CollUtil.isNotEmpty(tags)) {  
             for (String tag : tags) {  

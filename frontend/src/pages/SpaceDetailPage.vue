@@ -19,6 +19,9 @@
       </a-space>
     </a-flex>
 
+    <!-- 搜索表单 -->
+    <PictureSearchForm :onSearch="onSearch" />
+    <div style="margin-bottom: 16px" />
     <!-- 图片列表 -->
     <PictureList :dataList="dataList"
       :loading="loading"
@@ -46,6 +49,7 @@ import {
 import { formatSize } from '@/utils'
 import PictureList from '@/components/PictureList.vue'
 import { reactive } from 'vue'
+import PictureSearchForm from '@/components/PictureSearchForm.vue'
 
 const props = defineProps<{
   id: string | number
@@ -77,8 +81,13 @@ const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
 
+// 页面加载时请求一次
+onMounted(() => {
+  fetchData()
+})
+
 // 搜索条件
-const searchParams = reactive<API.PictureQueryRequest>({
+const searchParams = ref<API.PictureQueryRequest>({
   current: 1,
   pageSize: 12,
   sortField: 'createTime',
@@ -87,8 +96,18 @@ const searchParams = reactive<API.PictureQueryRequest>({
 
 // 分页参数
 const onPageChange = (page, pageSize) => {
-  searchParams.current = page
-  searchParams.pageSize = pageSize
+  searchParams.value.current = page
+  searchParams.value.pageSize = pageSize
+  fetchData()
+}
+
+// 搜索
+const onSearch = (newSearchParams: API.PictureQueryRequest) => {
+  searchParams.value = {
+    ...searchParams.value,
+    ...newSearchParams,
+    current: 1,
+  }
   fetchData()
 }
 
@@ -98,7 +117,7 @@ const fetchData = async () => {
   // 转换搜索参数
   const params = {
     spaceId: props.id,
-    ...searchParams,
+    ...searchParams.value,
   }
   const res = await listPictureVoByPageUsingPost(params)
   if (res.data.data) {
@@ -109,11 +128,6 @@ const fetchData = async () => {
   }
   loading.value = false
 }
-
-// 页面加载时请求一次
-onMounted(() => {
-  fetchData()
-})
 
 </script>
 

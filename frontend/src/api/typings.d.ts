@@ -217,6 +217,7 @@ declare namespace API {
     reviewerId?: number
     spaceId?: number
     tags?: string
+    thumbnailUrl?: string
     updateTime?: string
     url?: string
     userId?: number
@@ -233,6 +234,7 @@ declare namespace API {
   type PictureQueryRequest = {
     category?: string
     current?: number
+    endEditTime?: string
     id?: number
     introduction?: string
     name?: string
@@ -250,6 +252,7 @@ declare namespace API {
     sortField?: string
     sortOrder?: string
     spaceId?: number
+    startEditTime?: string
     tags?: string[]
     userId?: number
   }
@@ -271,6 +274,7 @@ declare namespace API {
     introduction?: string
     name?: string
     tags?: string[]
+    thumbnailUrl?: string
   }
 
   type PictureUploadRequest = {
@@ -291,7 +295,9 @@ declare namespace API {
     picScale?: number
     picSize?: number
     picWidth?: number
+    spaceId?: number
     tags?: string[]
+    thumbnailUrl?: string
     updateTime?: string
     url?: string
     user?: UserVO
