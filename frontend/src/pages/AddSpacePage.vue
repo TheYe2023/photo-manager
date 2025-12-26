@@ -23,8 +23,9 @@
     <!-- 空间级别介绍 -->
     <a-card title="空间级别介绍">
       <a-typography-paragraph>
-        * 目前仅支持开通普通版，如需升级空间，请联系
-        <a href="https://codefather.cn" target="_blank">leafi</a>
+        <!-- * 目前仅支持开通普通版，如需升级空间，请联系
+        <a href="https://codefather.cn" target="_blank">leafi</a> -->
+        * 普通用户每人只能创建一个普通空间
       </a-typography-paragraph>
       <a-typography-paragraph v-for="spaceLevel in spaceLevelList">
         {{ spaceLevel.text }}：大小 {{ formatSize(spaceLevel.maxSize) }}，数量

@@ -13,10 +13,19 @@
         <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
       </a-form-item>
       <a-form-item
+        name="userEmail"
+        :rules="[
+          { required: true, message: '请输入邮箱' },
+          { type: 'email', message: '请输入正确的邮箱格式' }
+        ]"
+      >
+        <a-input v-model:value="formState.userEmail" placeholder="请输入邮箱" />
+      </a-form-item>
+      <a-form-item
         name="userPassword"
         :rules="[
           { required: true, message: '请输入密码' },
-          { min: 8, message: '密码不能小于 8 位' },
+          { min: 6, message: '密码不能小于 6 位' },
         ]"
       >
         <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
@@ -25,7 +34,7 @@
         name="checkPassword"
         :rules="[
           { required: true, message: '请输入确认密码' },
-          { min: 8, message: '确认密码不能小于 8 位' },
+          { min: 6, message: '确认密码不能小于 6 位' },
         ]"
       >
         <a-input-password v-model:value="formState.checkPassword" placeholder="请输入确认密码" />
@@ -50,6 +59,7 @@ import router from '@/router' // 用于接受表单输入的值
 // 用于接受表单输入的值
 const formState = reactive<API.UserRegisterRequest>({
   userAccount: '',
+  userEmail: '',
   userPassword: '',
   checkPassword: '',
 })

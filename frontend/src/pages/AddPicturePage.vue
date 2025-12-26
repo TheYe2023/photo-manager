@@ -17,7 +17,18 @@
         <UrlPictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
       </a-tab-pane>
     </a-tabs>
-        <!-- 图片信息表单 -->
+    <!-- 图片编辑 -->
+    <div v-if="picture" class="edit-bar">
+      <a-button :icon="h(EditOutlined)" @click="doEditPicture">编辑图片</a-button>
+      <ImageCropper
+        ref="imageCropperRef"
+        :imageUrl="picture?.url"
+        :picture="picture"
+        :spaceId="spaceId"
+        :onSuccess="onCropSuccess"
+      />
+    </div>
+    <!-- 图片信息表单 -->
     <a-form
       v-if="picture"
       name="pictureForm"
@@ -72,6 +83,8 @@ import {
 } from '@/api/pictureController'
 import { useRoute, useRouter } from 'vue-router'
 import { EditOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
+import ImageCropper from '@/components/ImageCropper.vue'
+
 const router = useRouter()
 const route = useRoute()
 
@@ -192,6 +205,11 @@ const onCropSuccess = (newPicture: API.PictureVO) => {
 #addPicturePage {
   max-width: 720px;
   margin: 0 auto;
+}
+
+#addPicturePage .edit-bar {
+  text-align: center;
+  margin: 16px 0;
 }
 
 #addPicturePage .edit-bar {

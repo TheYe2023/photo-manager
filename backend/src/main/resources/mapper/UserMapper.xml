@@ -3,6 +3,7 @@
 <mapper namespace="com.leafi.backend.mapper.UserMapper">
     <resultMap id="BaseResultMap" type="com.leafi.backend.model.entity.User">
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
         <result column="userAccount" property="userAccount" jdbcType="VARCHAR" />
         <result column="userPassword" property="userPassword" jdbcType="VARCHAR" />
         <result column="userName" property="userName" jdbcType="VARCHAR" />
@@ -16,10 +17,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, userAccount, userPassword, 
-        userName, userAvatar, userProfile, 
-        userRole, editTime, createTime, 
-        updateTime, isDelete
+        id, email, userAccount, 
+        userPassword, userName, userAvatar, 
+        userProfile, userRole, editTime, 
+        createTime, updateTime, isDelete
     </sql>
 
     <!-- <insert id="insert" parameterType="com.leafi.backend.model.entity.User">

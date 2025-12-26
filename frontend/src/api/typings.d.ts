@@ -274,7 +274,6 @@ declare namespace API {
     introduction?: string
     name?: string
     tags?: string[]
-    thumbnailUrl?: string
   }
 
   type PictureUploadRequest = {
@@ -389,6 +388,7 @@ declare namespace API {
     updateTime?: string
     userAccount?: string
     userAvatar?: string
+    userEmail?: string
     userName?: string
     userPassword?: string
     userProfile?: string
@@ -411,6 +411,7 @@ declare namespace API {
   type UserRegisterRequest = {
     checkPassword?: string
     userAccount?: string
+    userEmail?: string
     userPassword?: string
   }
 

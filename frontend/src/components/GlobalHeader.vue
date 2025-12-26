@@ -81,11 +81,6 @@ const originItems = [
     title: '用户管理',
   },
   {
-    key: 'others',
-    label: h('a', { href: 'https://github.com/TheYe2023/photo-manager', target: '_blank' }, '项目地址'),
-    title: '项目地址',
-  },
-  {
     key: '/add_picture',
     label: '创建图片',
     title: '创建图片',
@@ -100,7 +95,11 @@ const originItems = [
     label: '空间管理',
     title: '空间管理',
   },
-
+  // {
+  //   key: 'others',
+  //   label: h('a', { href: 'https://github.com/TheYe2023/photo-manager', target: '_blank' }, '项目地址'),
+  //   title: '项目地址',
+  // },
 ]
 
 // 过滤菜单项

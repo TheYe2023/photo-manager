@@ -27,9 +27,11 @@
               {{ picture.category ?? '默认' }}
             </a-descriptions-item>
             <a-descriptions-item label="标签">
-              <a-tag v-for="tag in picture.tags" :key="tag">
-                {{ tag }}
-              </a-tag>
+              <a-space wrap :size="[0, 8]">
+                <a-tag v-for="tag in picture.tags" :key="tag">
+                  {{ tag }}
+                </a-tag>
+              </a-space>
             </a-descriptions-item>
             <a-descriptions-item label="格式">
               {{ picture.picFormat ?? '-' }}

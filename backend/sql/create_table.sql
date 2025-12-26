@@ -16,6 +16,9 @@ create table if not exists user
     INDEX idx_userName (userName)
 ) comment '用户' collate = utf8mb4_unicode_ci;
 
+ALTER TABLE user
+    delete COLUMN userEmail VARCHAR(256) NULL COMMENT '用户邮箱';
+
 -- 图片表  
 create table if not exists picture  
 (  
