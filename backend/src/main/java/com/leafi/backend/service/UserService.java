@@ -8,7 +8,7 @@ import com.leafi.backend.model.vo.UserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.leafi.backend.service.impl.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface UserService extends IService<User> {

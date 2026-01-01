@@ -9,7 +9,7 @@ import com.leafi.backend.model.entity.User;
 import com.leafi.backend.model.vo.SpaceVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface SpaceService extends IService<Space> {
 

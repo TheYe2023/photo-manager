@@ -10,7 +10,7 @@
         name="userPassword"
         :rules="[
           { required: true, message: '请输入密码' },
-          { min: 8, message: '密码不能小于 8 位' },
+          { min: 6, message: '密码不能小于 6 位' },
         ]"
       >
         <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
@@ -28,7 +28,7 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from 'vue'
-import { userLoginUsingPost } from '@/api/userController'
+import { userLogin } from '@/api/userController'
 import { useLoginUserStore } from '@/stores/useLoginUserStore'
 import { message } from 'ant-design-vue'
 import router from '@/router' // 用于接受表单输入的值
@@ -45,7 +45,7 @@ const loginUserStore = useLoginUserStore()
  * @param values 表单输入的值
  */
 const handleSubmit = async (values: any) => {
-    const response = await userLoginUsingPost(values)
+    const response = await userLogin(values)
     if (response.data.code === 0 && response.data.data) {
       await loginUserStore.fetchLoginUser()
       message.success('登录成功')

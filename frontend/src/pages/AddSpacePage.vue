@@ -39,10 +39,10 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  addSpaceUsingPost,
-  getSpaceVoByIdUsingGet,
-  listSpaceLevelUsingGet,
-  updateSpaceUsingPost,
+  addSpace,
+  getSpaceVoById,
+  listSpaceLevel,
+  updateSpace
 } from '@/api/spaceController'
 import { useRoute, useRouter } from 'vue-router'
 import {SPACE_LEVEL_ENUM, SPACE_LEVEL_OPTIONS} from '@/constants/space'
@@ -62,7 +62,7 @@ const spaceLevelList = ref<API.SpaceLevel[]>([])
 
 // 获取空间级别
 const fetchSpaceLevelList = async () => {
-  const res = await listSpaceLevelUsingGet()
+  const res = await listSpaceLevel()
   if (res.data.code === 0 && res.data.data) {
     spaceLevelList.value = res.data.data
   } else {
@@ -86,13 +86,13 @@ const handleSubmit = async (values: any) => {
   let res
   if (spaceId) {
     // 更新
-    res = await updateSpaceUsingPost({
+    res = await updateSpace({
       id: spaceId,
       ...formData,
     })
   } else {
     // 创建
-    res = await addSpaceUsingPost({
+    res = await addSpace({
       ...formData,
     })
   }
@@ -114,7 +114,7 @@ const getOldSpace = async () => {
   // 获取到 id
   const id = route.query?.id
   if (id) {
-    const res = await getSpaceVoByIdUsingGet({
+    const res = await getSpaceVoById({
       id,
     })
     if (res.data.code === 0 && res.data.data) {

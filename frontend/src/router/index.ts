@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { healthUsingGet } from '@/api/mainController'
+import { health } from '@/api/mainController'
 import HomePage from "@/pages/HomePage.vue";
 import UserLoginPage from '@/pages/user/UserLoginPage.vue';
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue';
@@ -14,7 +14,7 @@ import AddSpacePage from '@/pages/AddSpacePage.vue';
 import MySpacePage from '@/pages/MySpacePage.vue';
 import SpaceDetailPage from '@/pages/SpaceDetailPage.vue';
 
-healthUsingGet().then((res) => {
+health().then((res) => {
   console.log(res)
 })
 

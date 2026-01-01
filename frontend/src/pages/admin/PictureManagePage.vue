@@ -109,9 +109,9 @@
 <script lang="ts" setup>
   import { computed, onMounted, reactive, ref } from 'vue'
   import {
-    listPictureByPageUsingPost,
-    deletePictureUsingPost,
-    doPictureReviewUsingPost,
+    listPictureByPage,
+    deletePicture,
+    doPictureReview,
   } from '@/api/pictureController'
   import { message } from 'ant-design-vue'
   import dayjs from 'dayjs'
@@ -200,7 +200,7 @@
 
   // 获取数据
   const fetchData = async () => {
-    const res = await listPictureByPageUsingPost({
+    const res = await listPictureByPage({
       ...searchParams,
       nullSpaceId: true,
     })
@@ -236,7 +236,7 @@
     if (!id) {
       return
     }
-    const res = await deletePictureUsingPost({ id })
+    const res = await deletePicture({ id })
     if (res.data.code === 0) {
       message.success('删除成功')
       // 刷新数据
@@ -248,7 +248,7 @@
 
   const handleReview = async (record: API.Picture, reviewStatus: number) => {
     const reviewMessage = reviewStatus === PIC_REVIEW_STATUS_ENUM.PASS ? '管理员操作通过' : '管理员操作拒绝'
-    const res = await doPictureReviewUsingPost({
+    const res = await doPictureReview({
       id: record.id,
       reviewStatus,
       reviewMessage,

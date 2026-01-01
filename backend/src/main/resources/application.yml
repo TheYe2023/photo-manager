@@ -2,6 +2,7 @@ server:
   port: 8123
   servlet:
     context-path: /api
+
 spring:
   application:
     name: backend
@@ -16,7 +17,12 @@ spring:
     url: jdbc:mysql://localhost:3306/photo_manager
     username: root
     password: 152568
-    
+  ai:
+  mcp:
+    server:
+      name: mcp-photo-server # 这里的名称可以自定义
+      version: 0.0.1
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -34,15 +40,23 @@ logging:
     com.baomidou.mybatisplus: DEBUG
     com.leafi.backend.mapper: DEBUG
 
-# 接口文档配置
-knife4j:
-  enable: true
-  openapi:
-    title: "接口文档"
-    version: 1.0
-    group:
-      default:
-        api-rule: package
-        api-rule-resources:
-          - com.leafi.backend.controller
+# 接口文档配置 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    # 排序配置
+    tags-sorter: alpha
+    operations-sorter: alpha
+  # 扫描包路径
+  packages-to-scan: com.leafi.backend.controller
 
+sa-token:
+  token-name: satoken
+  # 是否从 Cookie 中读取 Token
+  is-read-cookie: true
+  # 是否从 Header 中读取 Token
+  is-read-header: true
+  # 是否在响应头里返回 Token
+  is-print-response-header: true

@@ -1,15 +1,18 @@
 package com.leafi.backend.service;
 
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.web.multipart.MultipartFile;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.leafi.backend.api.aliyunai.model.CreateAiAnalysisResponse;
 import com.leafi.backend.model.entity.Picture;
 import com.leafi.backend.model.entity.User;
+import com.leafi.backend.api.aliyunai.model.CreateAiAnalysisRequest;
 import com.leafi.backend.model.dto.picture.*;
 import com.leafi.backend.model.vo.PictureVO;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface PictureService extends IService<Picture> {
@@ -114,4 +117,16 @@ public interface PictureService extends IService<Picture> {
      */
     void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 
+    /**
+     * 创建AI分析图片任务
+     * 
+     * @param createPictrueAnalysisRequest
+     * @return loginUser
+     */
+    List<String> createPictureAnalysisTask(CreatePictureAnalysisTaskRequest createPictrueAnalysisRequest, User loginUser);
+    
+    /**
+     * 根据搜索词搜索图片
+     */
+    public String callPictureSearch(String searchText);
 }

@@ -20,7 +20,7 @@ import { ref } from 'vue'
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import type { UploadProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
-import { uploadPictureUsingPost } from '@/api/pictureController'
+import { uploadPicture } from '@/api/pictureController'
 
 interface Props {
   picture?: API.PictureVO
@@ -37,18 +37,34 @@ const props = defineProps<Props>()
 const handleUpload = async ({ file }: any) => {
   loading.value = true
   try {
-    const params: API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {}
-    params.spaceId = props.spaceId;
-    const res = await uploadPictureUsingPost(params, {}, file)
+    const formData = new FormData()
+    formData.append('file', file) // 必须与后端 @RequestPart("file") 一致
+
+    // 如果有 spaceId 或 pictureId，一并放入 formData
+    if (props.spaceId) {
+      formData.append('spaceId', props.spaceId.toString())
+    }
+    if (props.picture?.id) {
+      formData.append('id', props.picture.id.toString())
+    }
+
+    const res = await uploadPicture(
+      {},
+      formData as any,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+
     if (res.data.code === 0 && res.data.data) {
       message.success('图片上传成功')
-      // 将上传成功的图片信息传递给父组件
       props.onSuccess?.(res.data.data)
     } else {
       message.error('图片上传失败，' + res.data.message)
     }
-  } catch (error) {
-    console.error('图片上传失败', error)
+  } catch (error: any) {
     message.error('图片上传失败，' + error.message)
   }
   loading.value = false
@@ -67,9 +83,9 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
     message.error('不支持上传该格式的图片，推荐 jpg 或 png')
   }
   // 校验图片大小
-  const isLt5M = file.size / 1024 / 1024 < 5
+  const isLt5M = file.size / 1024 / 1024 < 4
   if (!isLt5M) {
-    message.error('不能上传超过 5M 的图片')
+    message.error('不能上传超过 4M 的图片')
   }
   return isJpgOrPng && isLt5M
 }

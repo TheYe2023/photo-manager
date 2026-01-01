@@ -34,10 +34,10 @@
                       我的空间
                     </router-link>
                   </a-menu-item>
-                  <a-menu-item to="/my_message">
+                  <!-- <a-menu-item to="/my_message">
                     <UserAddOutlined />
                     个人信息
-                  </a-menu-item>
+                  </a-menu-item> -->
                   <a-menu-item @click="doLogout">
                     <LogoutOutlined />
                     退出登录
@@ -61,7 +61,7 @@ import { HomeOutlined, LogoutOutlined, UserAddOutlined, UserOutlined, UserSwitch
 import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from "vue-router";
 import { useLoginUserStore } from "@/stores/useLoginUserStore";
-import { userLogoutUsingPost } from '@/api/userController'
+import { userLogout  } from '@/api/userController'
 import checkAccess from '@/access/checkAccess'
 import type { RouteRecordRaw } from 'vue-router';
 
@@ -156,7 +156,7 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 // 用户注销
 const doLogout = async () => {
-  const res = await userLogoutUsingPost()
+  const res = await userLogout ()
   if (res.data.code === 0) {
     loginUserStore.setLoginUser({
       userName: '未登录',

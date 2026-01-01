@@ -77,17 +77,18 @@ import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import { computed, h, onMounted, reactive, ref, watchEffect } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  editPictureUsingPost,
-  getPictureVoByIdUsingGet,
-  listPictureTagCategoryUsingGet,
+  editPicture,
+  getPictureVoById,
+  listPictureTagCategory,
 } from '@/api/pictureController'
 import { useRoute, useRouter } from 'vue-router'
 import { EditOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
 import ImageCropper from '@/components/ImageCropper.vue'
+import { createAiPictureAnalyzeTask } from '@/api/pictureController'
 
 const router = useRouter()
 const route = useRoute()
-
+const aiLoading = ref(false)
 const picture = ref<API.PictureVO>()
 const pictureForm = reactive<API.PictureEditRequest>({})
 const uploadType = ref<'file' | 'url'>('file')
@@ -100,9 +101,29 @@ const spaceId = computed(() => {
  * 图片上传成功
  * @param newPicture
  */
-const onSuccess = (newPicture: API.PictureVO) => {
+const onSuccess = async (newPicture: API.PictureVO) => {
   picture.value = newPicture
   pictureForm.name = newPicture.name
+
+  // 新增 AI 自动分析逻辑
+  if (newPicture.id) {
+    const hide = message.loading('AI 正在自动分析图片标签...', 0)
+    try {
+      const res = await createAiPictureAnalyzeTask({
+        pictureId: newPicture.id
+      })
+      if (res.data.code === 0 && res.data.data) {
+        // 将 AI 返回的 List<String> 赋值给表单的 tags 字段
+        pictureForm.tags = res.data.data
+        message.success('AI 自动分析标签成功')
+      }
+    } catch (error) {
+      console.error('AI 分析失败', error)
+      // 这里的报错不影响主流程，所以不用强制弹窗
+    } finally {
+      hide() // 关闭 loading
+    }
+  }
 }
 
 /**
@@ -115,7 +136,7 @@ const handleSubmit = async (values: any) => {
   if (!pictureId) {
     return
   }
-  const res = await editPictureUsingPost({
+  const res = await editPicture({
     id: pictureId,
     spaceId: spaceId.value,
     ...values,
@@ -140,7 +161,7 @@ const tagOptions = ref<string[]>([])
  * @param values
  */
 const getTagCategoryOptions = async () => {
-  const res = await listPictureTagCategoryUsingGet()
+  const res = await listPictureTagCategory()
   if (res.data.code === 0 && res.data.data) {
     tagOptions.value = (res.data.data.tagList ?? []).map((data: string) => {
       return {
@@ -168,7 +189,7 @@ const getOldPicture = async () => {
   // 获取到 id
   const id = route.query?.id
   if (id) {
-    const res = await getPictureVoByIdUsingGet({
+    const res = await getPictureVoById({
       id,
     })
     if (res.data.code === 0 && res.data.data) {

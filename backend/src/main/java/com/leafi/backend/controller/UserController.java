@@ -3,7 +3,6 @@ package com.leafi.backend.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpUtil;
-import net.bytebuddy.implementation.bytecode.Throw;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.JsonSerializable.Base;
@@ -24,15 +23,22 @@ import com.leafi.backend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.bind.annotation.XmlElement.DEFAULT;
 
 import java.nio.file.Files;
 import java.util.List;
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = {"http://localhost:8123", "http://localhost:5173"}, allowCredentials = "true")
+@CrossOrigin(
+    origins = {
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173", 
+        "http://10.162.217.157:5173"
+    }, 
+    allowCredentials = "true"
+)
 public class UserController {
 
     @Resource

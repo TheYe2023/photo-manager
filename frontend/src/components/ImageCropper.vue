@@ -27,7 +27,7 @@
 <script setup lang="ts">
 
 import { computed, onUnmounted, ref, watchEffect } from 'vue'
-import { uploadPictureUsingPost } from '@/api/pictureController'
+import { uploadPicture } from '@/api/pictureController'
 import { message } from 'ant-design-vue'
 
 interface Props {
@@ -58,7 +58,7 @@ const handleUpload = async ({ file }: any) => {
   try {
     const params: API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {}
     params.spaceId = props.spaceId
-    const res = await uploadPictureUsingPost(params, {}, file)
+    const res = await uploadPicture(params, {}, file)
     if (res.data.code === 0 && res.data.data) {
       message.success('图片上传成功')
       // 将上传成功的图片信息传递给父组件

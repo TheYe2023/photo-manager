@@ -64,7 +64,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { listSpaceByPageUsingPost, deleteSpaceUsingPost } from '@/api/spaceController'
+import { listSpaceByPage, deleteSpace } from '@/api/spaceController'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import {
@@ -134,7 +134,7 @@ import { formatSize } from '../../utils'
 
   // 获取数据
   const fetchData = async () => {
-    const res = await listSpaceByPageUsingPost({
+    const res = await listSpaceByPage({
       ...searchParams,
     })
     if (res.data.data) {
@@ -169,7 +169,7 @@ import { formatSize } from '../../utils'
     if (!id) {
       return
     }
-    const res = await deleteSpaceUsingPost({ id })
+    const res = await deleteSpace({ id })
     if (res.data.code === 0) {
       message.success('删除成功')
       // 刷新数据

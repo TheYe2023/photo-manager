@@ -8,7 +8,12 @@
         enter-button="搜索"
         size="large"
         @search="doSearch"
-      />
+      >
+      </a-input-search>
+    </div>
+    <AiChatDrawer ref="chatDrawerRef" />
+    <div class="ai-float-button" @click="onOpenChat">
+      <span style="font-size: 24px;">🤖</span>
     </div>
     <!-- 分类 + 标签 -->
     <a-tabs v-model:activeKey="selectedCategory" @change="doSearch">
@@ -46,16 +51,25 @@
 <script setup lang="ts">
   import { onMounted, reactive, ref } from 'vue'
   import {
-    listPictureTagCategoryUsingGet,
-    listPictureVoByPageUsingPost,
+    listPictureTagCategory,
+    listPictureVoByPage
   } from '@/api/pictureController'
   import { message } from 'ant-design-vue'
   import PictureList from '@/components/PictureList.vue'
+  import AiChatDrawer from '@/components/AiChatDrawer.vue'
 
+
+  // ai 聊天抽屉
+  const chatDrawerRef = ref()
   // 数据
   const dataList = ref<API.PictureVO[]>([])
   const total = ref(0)
   const loading = ref(true)
+
+  // 定义打开 AI 助手的方法
+  const onOpenChat = () => {
+    chatDrawerRef.value?.openDrawer()
+  }
 
   // 搜索条件
   const searchParams = reactive<API.PictureQueryRequest>({
@@ -95,7 +109,7 @@
         params.tags.push(tagList.value[index])
       }
     })
-    const res = await listPictureVoByPageUsingPost(params)
+    const res = await listPictureVoByPage(params);
     if (res.data.code === 0 && res.data.data) {
       dataList.value = res.data.data.records ?? []
       total.value = res.data.data.total ?? 0
@@ -116,7 +130,7 @@
    * @param values
    */
   const getTagCategoryOptions = async () => {
-    const res = await listPictureTagCategoryUsingGet()
+    const res = await listPictureTagCategory
     if (res.data.code === 0 && res.data.data) {
       tagList.value = res.data.data.tagList ?? []
       categoryList.value = res.data.data.categoryList ?? []
@@ -144,5 +158,27 @@
 
 #homePage .tag-bar {
   margin-bottom: 16px;
+}
+
+.ai-float-button {
+  position: fixed;
+  right: 40px;
+  bottom: 80px;
+  width: 56px;
+  height: 56px;
+  background: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s;
+  z-index: 1000;
+}
+
+.ai-float-button:hover {
+  transform: scale(1.1);
+  background: #1890ff;
 }
 </style>

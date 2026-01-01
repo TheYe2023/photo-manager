@@ -17,7 +17,7 @@ create table if not exists user
 ) comment '用户' collate = utf8mb4_unicode_ci;
 
 ALTER TABLE user
-    delete COLUMN userEmail VARCHAR(256) NULL COMMENT '用户邮箱';
+    ADD COLUMN userEmail VARCHAR(256) NULL COMMENT '用户邮箱';
 
 -- 图片表  
 create table if not exists picture  
@@ -87,3 +87,10 @@ create table if not exists space
     index idx_spaceName (spaceName),  -- 提升基于空间名称的查询效率
     index idx_spaceLevel (spaceLevel) -- 提升按空间级别查询的效率
 ) comment '空间' collate = utf8mb4_unicode_ci;
+
+
+-- 自动添加管理员账号
+-- 账号：admin，密码：123456
+INSERT INTO user (userAccount, userPassword, userName, userRole)
+VALUES ('admin', 'c075436f72a8ce3fc28e61d63e01826d', '系统管理员', 'admin')
+ON DUPLICATE KEY UPDATE userAccount = 'admin';

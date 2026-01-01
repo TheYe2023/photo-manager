@@ -6,11 +6,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.time.Duration;
+
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.BeanUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -32,6 +34,7 @@ import com.leafi.backend.common.ResultUtils;
 import com.leafi.backend.constant.UserConstant;
 import com.leafi.backend.exception.BusinessException;
 import com.leafi.backend.exception.ThrowUtils;
+import com.leafi.backend.model.dto.picture.CreatePictureAnalysisTaskRequest;
 import com.leafi.backend.model.dto.picture.PictureEditRequest;
 import com.leafi.backend.model.dto.picture.PictureQueryRequest;
 import com.leafi.backend.model.dto.picture.PictureReviewRequest;
@@ -47,6 +50,7 @@ import com.leafi.backend.service.PictureService;
 import com.leafi.backend.service.UserService;
 import com.leafi.backend.service.SpaceService;
 import com.leafi.backend.exception.ErrorCode;
+import com.leafi.backend.model.dto.picture.ChatRequest;
 
 
 import cn.hutool.json.JSONUtil;
@@ -64,7 +68,9 @@ public class PictureController {
 
     @Resource
     private SpaceService spaceService;
-    
+
+    @Resource
+    private ChatClient chatClient;
     /**  
      * 上传图片（可重新上传）  
      */  
@@ -109,7 +115,7 @@ public class PictureController {
      */  
     @PostMapping("/update")  
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {  
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {  
         if (pictureUpdateRequest == null || pictureUpdateRequest.getId() <= 0) {  
             throw new BusinessException(ErrorCode.PARAMS_ERROR);  
         }  
@@ -255,4 +261,30 @@ public class PictureController {
         return ResultUtils.success(true);  
     }
 
+    /**
+     * 创建AI图片分析任务
+     */
+    @PostMapping("/tag_category/create_task")
+    public BaseResponse<List<String>> createAIPictureAnalyzeTask(
+            @RequestBody CreatePictureAnalysisTaskRequest createPictureAnalysisTaskRequest,
+            HttpServletRequest request) {
+        if (createPictureAnalysisTaskRequest == null || createPictureAnalysisTaskRequest.getPictureId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        List<String> tags = pictureService.createPictureAnalysisTask(createPictureAnalysisTaskRequest, loginUser);
+        return ResultUtils.success(tags);
+    }
+
+    @PostMapping("/chat")
+    public BaseResponse<String> doChat(@RequestBody ChatRequest request) {
+        String response = chatClient.prompt()
+                .system("你是一个专业的智能照片管家。你可以通过调用搜索工具帮助用户查找照片。")
+                .user(request.getMessage())
+                .functions("callPictureSearch") // 开启工具权限
+                .call()
+                .content();
+                
+        return ResultUtils.success(response);
+    }
 }

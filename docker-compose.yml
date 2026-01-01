@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: photo_manager
+      MYSQL_PASSWORD: 152568
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - web-network
+
+  # 3. Java 后端 (Spring Boot)
+  backend:
+    build: ./backend
+    image: openjdk:11-jre-slim
+    container_name: springboot_app
+    working_dir: /app
+    ports:
+      - "8123:8123"
+    environment:
+      - TZ=Asia/Shanghai
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/photo_manager?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_AI_OPENAI_API_KEY=sk-448cee4391464fb2b8cb9a8cf598f3ba
+      - SPRING_AI_OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode
+      - ALIYUNAI_APIKEY=sk-448cee4391464fb2b8cb9a8cf598f3ba
+      - SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL=qwen-plus
+    command: ["java", "-jar", "target/yu-picture-backend-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"] # <--- 这里也修复了缩进
+    depends_on:
+      - mysql
+    networks:
+      - web-network
+
+  # 4. 前端
+  frontend:
+    build: ./frontend
+    container_name: frontend-web
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - web-network
+
+volumes:
+  mysql_data:
+
+networks:
+  web-network:
+    driver: bridge

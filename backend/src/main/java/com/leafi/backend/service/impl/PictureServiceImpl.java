@@ -8,6 +8,9 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.leafi.backend.api.aliyunai.model.CreateAiAnalysisRequest;
+import com.leafi.backend.api.aliyunai.model.CreateAiAnalysisResponse;
+import com.leafi.backend.api.aliyunai.AliYunAiApi;
 import com.leafi.backend.common.PageRequest;
 import com.leafi.backend.exception.BusinessException;
 import com.leafi.backend.exception.ErrorCode;
@@ -39,10 +42,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
@@ -74,6 +81,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private AliYunAiApi aliYunAiApi;
     
     /**
      * 校验图片参数
@@ -478,4 +488,108 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
     }
 
+    @Override
+    public List<String> createPictureAnalysisTask(CreatePictureAnalysisTaskRequest createPictrueAnalysisRequest, User loginUser) {
+        // 获取图片信息
+        Long pictureId = createPictrueAnalysisRequest.getPictureId();
+        Picture picture = Optional.ofNullable(this.getById(pictureId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图片不存在"));
+        // 权限校验
+        checkPictureAuth(loginUser, picture);
+        // 构造请求参数
+        CreateAiAnalysisRequest taskRequest = new CreateAiAnalysisRequest();
+        CreateAiAnalysisRequest.Input input = new CreateAiAnalysisRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        taskRequest.setInput(input);
+        return aliYunAiApi.getPictureTags(taskRequest);
+    }
+
+    /**
+     * 根据关键词搜索图片（供 AI 调用）
+     */
+    @Tool(description = "根据关键词搜索图库中的图片") // 确保 AI 识别
+    public String callPictureSearch(String searchText) {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return "系统异常：无法获取当前登录信息";
+        }
+        HttpServletRequest request = attributes.getRequest();
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            return "通知用户：请先登录后再搜索图片。";
+        }
+        Long currentUserId = loginUser.getId();
+
+        log.info("AI 正在触发图片搜索，用户ID：{}，关键词：{}", currentUserId, searchText);
+        try {
+            // 构造查询请求
+            PictureQueryRequest queryRequest = new PictureQueryRequest();
+            // 基础模糊搜索：匹配名称和简介
+            queryRequest.setSearchText(searchText);
+            // 扩展匹配：尝试将关键词直接作为分类进行匹配
+            queryRequest.setCategory(searchText);
+            // 扩展匹配：尝试将关键词作为标签列表中的一项进行匹配（支持 JSON 数组查询）
+            queryRequest.setTags(Collections.singletonList(searchText));
+            
+            queryRequest.setPageSize(5); 
+
+            // 获取初始 QueryWrapper
+            QueryWrapper<Picture> queryWrapper = this.getQueryWrapper(queryRequest);
+
+            // 因为 getQueryWrapper 默认是将所有条件用 AND 连接，我们需要手动构造 OR 逻辑
+            QueryWrapper<Picture> orWrapper = new QueryWrapper<>();
+            // ( (空间内照片) OR (公共照片) ) AND (审核通过)
+            orWrapper.and(allQw -> allQw.and(qw -> qw
+                    .like("name", searchText)
+                    .or().like("introduction", searchText)
+                    .or().eq("category", searchText)
+                    .or().like("tags", "\"" + searchText + "\"")
+            ));
+
+            Space mySpace = spaceService.lambdaQuery()
+                    .eq(Space::getUserId, currentUserId)
+                    .one();
+            // 构造权限 Wrapper
+            orWrapper.and(permQw -> {
+                permQw.eq("spaceId", 0); // 公共空间
+                if (mySpace != null) {
+                    permQw.or().eq("spaceId", mySpace.getId()); // 用户的私有空间
+                } else {
+                    // 如果用户还没创建空间，退而求其次找 userId 匹配且无空间的照片
+                    permQw.or().eq("userId", currentUserId); 
+                }
+            });
+                
+            // 仅搜索审核通过的图片
+            orWrapper.eq("reviewStatus", PictureReviewStatusEnum.PASS.getValue());
+            // 限制返回数量
+            orWrapper.last("LIMIT 5");
+
+            List<Picture> pictureList = this.list(orWrapper);
+            
+            if (CollUtil.isEmpty(pictureList)) {
+                return "通知用户：库中目前没有找到与 '" + searchText + "' 相关的图片（已检索名称、简介、分类和标签）。";
+            }
+
+            // 4. 转换为精简结果
+            List<Map<String, Object>> resultList = pictureList.stream().map(pic -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("id", pic.getId());
+                map.put("title", pic.getName());
+                map.put("category", pic.getCategory());
+                map.put("tags", pic.getTags());
+                map.put("description", pic.getIntroduction());
+                map.put("detail_link_tag", String.format("<img src=\"%s\" data-id=\"%s\" title=\"点击查看详情\" />", pic.getUrl(), pic.getId()));
+                return map;
+            }).collect(Collectors.toList());
+
+            return "请直接使用数据中的 detail_link_tag 来展示图片，以便用户点击。数据如下：" + JSONUtil.toJsonStr(resultList);
+            
+        } catch (Exception e) {
+            log.error("MCP 图片搜索工具执行异常", e);
+            return "系统错误：暂时无法搜索图片。";
+        }
+    }
 }

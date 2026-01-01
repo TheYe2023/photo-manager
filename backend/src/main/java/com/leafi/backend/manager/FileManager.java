@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
@@ -93,7 +93,7 @@ public class FileManager {
         // 1. 校验文件大小  
         long fileSize = multipartFile.getSize();  
         final long ONE_M = 1024 * 1024L;  
-        ThrowUtils.throwIf(fileSize > 5 * ONE_M, ErrorCode.PARAMS_ERROR, "文件大小不能超过 2M");  
+        ThrowUtils.throwIf(fileSize > 4 * ONE_M, ErrorCode.PARAMS_ERROR, "文件大小不能超过 4M");  
         // 2. 校验文件后缀  
         String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());  
         // 允许上传的文件后缀  
